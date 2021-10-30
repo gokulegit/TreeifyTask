@@ -75,7 +75,7 @@ rootTask.ExecuteInSeries(cancellationToken, true);
 
 ## Road map
 
-This is the initial version that I've tried. Please raise issues if you find any. And contributions are always welcome 😊. Here's the list of items planned for the upcoming releases
+This is the initial version that I've tried. Please raise issues if you find any. And comments, suggestions, issues and contributions are always welcome 😊 Here's the list of items planned for the upcoming releases
 
 - [x] Core Component
 - [x] Wpf sample
