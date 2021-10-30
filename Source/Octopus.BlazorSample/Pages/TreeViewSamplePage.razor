@@ -1,0 +1,13 @@
+﻿@page "/"
+
+<MudPaper Width="300px" Elevation="0">
+    <MudTreeView Items="Tasks" @bind-ActivatedValue="ActivatedValue" @bind-SelectedValues="SelectedValues" ExpandOnClick="false">
+        <ItemTemplate>
+            <MudTreeViewItem Expanded="true" Items="@context.Children" Value="@context" Text="@context.AsyncTask.Id" />
+        </ItemTemplate>
+    </MudTreeView>
+</MudPaper>
+
+<div style="width: 100%; margin-top:20px">
+    <MudText Typo="@Typo.subtitle1">Activated item: @(ActivatedValue?.AsyncTask?.Id)</MudText>
+</div>

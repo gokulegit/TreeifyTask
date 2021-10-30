@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp2.1;net48;net5</TargetFrameworks>
+    <LangVersion>9.0</LangVersion>
+    <PackageId>Octopus</PackageId>
+    <Authors>Gokul E</Authors>
+    <Description>Dotnet component that provides heirarchical management of async tasks</Description>
+    <PackageTags>csharptaskmanager asynctasks concurrent concurrency seriesexecution serialexecution overallprogress treeprogress consolidateprogress parenttask childtask parentchildtask</PackageTags>
+    <PackageProjectUrl>https://github.com/gokulegit/Octopus</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/gokulegit/Octopus</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+</Project>

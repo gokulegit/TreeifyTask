@@ -1,0 +1,104 @@
+﻿@page "/async"
+@using Octopus.TaskTree;
+@using System.Threading.Tasks;
+@using System.Threading;
+
+<h3>Async tasks tester</h3>
+
+Overall progress
+<div class="progress">
+    <div class="progress-bar" role="progressbar" aria-valuenow="70"
+         aria-valuemin="0" aria-valuemax="100" style="width:@(progressValue)%">
+        <span class="sr-only">70% Complete</span>
+    </div>
+</div>
+
+<div style="margin-top:20px; display:flex; flex-direction:row">
+    <button type="button" class="btn btn-info btn-sm" @onclick="Start" disabled="@isBusy">Start</button>
+    <span style="margin-left:10px"></span>
+    <button type="button" class="btn btn-secondary btn-sm" @onclick="Cancel" disabled="@(!isBusy)">Cancel</button>
+    <span style="margin-left:10px"></span>
+    <button type="button" class="btn btn-warning btn-sm" @onclick="Reset" disabled="@isBusy">Reset</button>
+</div>
+
+<div style="margin-top:10px">
+    <p>@message</p>
+</div>
+
+@code
+{
+    double progressValue = 0;
+    CancellationTokenSource cancellationTokenSource;
+    string message;
+    bool isBusy;
+    IAsyncTask rootTask;
+
+    private async Task Start()
+    {
+        if (this.progressValue == 100)
+        {
+            this.progressValue = 0;
+            await Task.Delay(1000);
+        }
+
+        CreateTask();
+
+        cancellationTokenSource = new CancellationTokenSource();
+        isBusy = true;
+        message = "Starting operation...";
+        await rootTask.ExecuteInSeries(cancellationTokenSource.Token, false);
+        isBusy = false;
+
+        this.progressValue = cancellationTokenSource.IsCancellationRequested ? 0 : 100;
+        this.message = $"Operation {(cancellationTokenSource.IsCancellationRequested ? "Cancelled" : "Completed")}.";
+    }
+
+    private void Reset()
+    {
+        CreateTask();
+    }
+
+    private void Cancel()
+    {
+        cancellationTokenSource?.Cancel();
+    }
+
+    private void CreateTask()
+    {
+        rootTask = new AsyncTask("root");
+
+        var task1 = new AsyncTask("Task-1", async (reporter, token) =>
+        {
+            double N = 0;
+            double total = 1000;
+            while (!token.IsCancellationRequested && N < total)
+            {
+                await Task.Delay(10);
+                N++;
+                reporter.Report(TaskTree.TaskStatus.InProgress, (N / total) * 100);
+            }
+        });
+
+        var task2 = new AsyncTask("Task-2", async (reporter, token) =>
+        {
+            double N = 0;
+            double total = 100;
+            while (!token.IsCancellationRequested && N < total)
+            {
+                await Task.Delay(100);
+                N++;
+                reporter.Report(TaskTree.TaskStatus.InProgress, (N / total) * 100);
+            }
+        });
+
+        rootTask.AddChild(task1);
+        rootTask.AddChild(task2);
+
+        rootTask.Reporting += (sender, eventArgs) =>
+        {
+            this.progressValue = eventArgs.ProgressValue;
+            this.message = $"Execution in progress {this.progressValue:N2}%";
+            StateHasChanged();
+        };
+    }
+}

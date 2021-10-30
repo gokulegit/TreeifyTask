@@ -1,0 +1,163 @@
+﻿<Window x:Class="Octopus.Sample.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Octopus.Sample"
+        xmlns:octopus="clr-namespace:Octopus.TaskTree;assembly=Octopus"
+        mc:Ignorable="d"
+        FontSize="14" FontFamily="Segeo UI" FontWeight="Normal"
+        Title="Octopus.TaskTree WPF sample" Height="600" Width="800" KeyDown="Window_KeyDown" UseLayoutRounding="True">
+    <Window.Resources>
+        <BitmapImage x:Key="logo" UriSource="pack://application:,,,/Octopus.WpfSample;component/Resources/octopuslogo.png" />
+    </Window.Resources>
+
+    <Grid Margin="15">
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Top">
+                <WrapPanel Margin="0,-10,0,0">
+                    <Image Source="{StaticResource logo}" Height="70" HorizontalAlignment="Left" />
+                    <Grid>
+                        <Label VerticalAlignment="Center">OCTOPUS</Label>
+                    </Grid>
+                </WrapPanel>
+                <Separator Height="2" />
+                <WrapPanel>
+                    <Label>Overall progress</Label>
+                    <Label Name="oProg" />
+                </WrapPanel>
+                <ProgressBar x:Name="pb" VerticalAlignment="Top" Height="19" />
+                <GroupBox Header="Execution style" Margin="0,10,0,0" Padding="10" Name="grpExecutionMethod">
+                    <WrapPanel>
+                        <RadioButton GroupName="concurrentExec" Name="rdSeries" Margin="0,0,10,0" IsChecked="True">Series</RadioButton>
+                        <RadioButton GroupName="concurrentExec" Name="rdConcurrent">Concurrent</RadioButton>
+                    </WrapPanel>
+                </GroupBox>
+                <WrapPanel Margin="0,10,0,0">
+                    <WrapPanel.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="11" />
+                            <Setter Property="Margin" Value="5,0,0,0" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="Foreground" Value="#555" />
+                        </Style>
+                        <Style TargetType="Rectangle">
+                            <Setter Property="Width" Value="10" />
+                            <Setter Property="Height" Value="10" />
+                            <Setter Property="Margin" Value="10,-1,0,0" />
+                        </Style>
+                    </WrapPanel.Resources>
+                    <Button Padding="15,3" Click="StartClick" Name="btnStart">Start</Button>
+                    <Button Padding="15,3" Margin="10,0,0,0" Name="btnCancel" IsEnabled="False" Click="CancelClick">Cancel</Button>
+                    <Button Padding="15,3" Margin="10,0,0,0" Name="btnReset" Click="btnResetClick" IsEnabled="{Binding ElementName=btnStart, Path=IsEnabled, Mode=OneWay}">Reset tasks</Button>                    
+                    <Rectangle Fill="#ccc"></Rectangle>
+                    <TextBlock>NotStarted</TextBlock>
+                    <Rectangle Fill="Orange"></Rectangle>
+                    <TextBlock>InProgress</TextBlock>
+                    <Rectangle Fill="Brown"></Rectangle>
+                    <TextBlock>InDeterminate</TextBlock>
+                    <Rectangle Fill="Green"></Rectangle>
+                    <TextBlock>Completed</TextBlock>
+                    <Rectangle Fill="Red"></Rectangle>
+                    <TextBlock>Failed</TextBlock>
+                    <Rectangle Fill="Blue"></Rectangle>
+                    <TextBlock>Cancelled</TextBlock>
+                </WrapPanel>
+            </StackPanel>
+            <!--<RichTextBox Margin="0,10,0,0" Name="txtState" ScrollViewer.VerticalScrollBarVisibility="Auto" TextBlock.LineHeight=".1"/>-->
+            <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition MinWidth="200" Width="Auto" />
+                    <ColumnDefinition MinWidth="200" Width="*" />
+                </Grid.ColumnDefinitions>
+                <TreeView DockPanel.Dock="Left" MinWidth="190" Margin="0,0,4,0" SelectedItemChanged="TreeView_SelectedItemChanged" Name="tv">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem">
+                            <Setter Property="IsExpanded" Value="True" />
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding ChildTasks}" DataType="{x:Type local:AsyncTaskViewModel}">
+                            <WrapPanel>
+                                <Rectangle Width="10" Height="10" Margin="0,0,5,0">
+                                    <Rectangle.Style>
+                                        <Style TargetType="Rectangle">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding TaskStatus}" Value="NotStarted">
+                                                    <Setter Property="Fill" Value="#ccc" />
+                                                </DataTrigger   >
+                                                <DataTrigger Binding="{Binding TaskStatus}" Value="InProgress">
+                                                    <Setter Property="Fill" Value="Orange" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding TaskStatus}" Value="InDeterminate">
+                                                    <Setter Property="Fill" Value="Brown" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding TaskStatus}" Value="Failed">
+                                                    <Setter Property="Fill" Value="Red" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding TaskStatus}" Value="Completed">
+                                                    <Setter Property="Fill" Value="Green" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding TaskStatus}" Value="Cancelled">
+                                                    <Setter Property="Fill" Value="Blue" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Rectangle.Style>
+                                </Rectangle>
+                                <TextBlock Text="{Binding Id}" />
+                            </WrapPanel>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+                <GridSplitter Width="3" VerticalAlignment="Stretch"
+                              Margin="10,0,0,0"                              
+                              HorizontalAlignment="Right">
+                    <GridSplitter.Style>
+                        <Style TargetType="{x:Type GridSplitter}">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#ccc"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </GridSplitter.Style>
+                </GridSplitter>
+                <Border Padding="10,0,0,0" Grid.Column="1" MinWidth="200">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Top">
+                            <Label>TaskId</Label>
+                            <TextBox x:Name="txtId"></TextBox>
+                            <Label>Task status</Label>
+                            <TextBox x:Name="txtStatus" />
+                            <Label>Progress value</Label>
+                            <ProgressBar x:Name="pbChild" Height="19" />
+                            <Label>Progress state</Label>
+                        </StackPanel>
+                        <TextBox TextAlignment="Left" TextWrapping="WrapWithOverflow" x:Name="txtChildState"/>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </DockPanel>
+        <Border VerticalAlignment="Bottom" CornerRadius="3" Padding="10" BorderThickness="1" BorderBrush="PaleVioletRed" x:Name="errorBox" Visibility="Collapsed">
+            <DockPanel>
+                <Viewbox Width="14" Height="14" VerticalAlignment="Top" DockPanel.Dock="Left" Margin="0,2,10,0">
+                    <Grid RenderTransformOrigin="0.5,0.5">
+                        <Grid.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform Angle="45"/>
+                                <TranslateTransform/>
+                            </TransformGroup>
+                        </Grid.RenderTransform>
+                        <Border Background="Red" Width="4" Height="30" CornerRadius="2" HorizontalAlignment="Center" VerticalAlignment="Stretch"></Border>
+                        <Border Background="Red" Height="4" Width="30" CornerRadius="2" HorizontalAlignment="Center" VerticalAlignment="Stretch"></Border>
+                    </Grid>
+                </Viewbox>
+                <TextBlock x:Name="txtError" TextWrapping="WrapWithOverflow" TextAlignment="Justify"></TextBlock>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
