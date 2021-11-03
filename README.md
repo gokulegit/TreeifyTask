@@ -75,9 +75,12 @@ rootTask.ExecuteInSeries(cancellationToken, true);
 
 ## Road map
 
-This is the initial version that I've tried. Please raise issues if you find any. And comments, suggestions, issues and contributions are always welcome 😊 Here's the list of items planned for the upcoming releases
+This is the initial version of the component. Please raise issues if you find any. Comments, suggestions and contributions are always welcome. 
+
+Here's the list of items in backlog for the upcoming releases
 
 - [x] Core Component
-- [x] Wpf sample
-- [ ] Blazor server sample
-- [ ] Syntax enhancement on subtask creation
+- [x] Wpf Sample
+- [ ] Blazor Server Sample
+- [ ] Syntax Enhancement on subtasks creation
+
