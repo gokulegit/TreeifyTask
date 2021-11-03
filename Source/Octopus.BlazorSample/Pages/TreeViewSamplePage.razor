@@ -1,7 +1,8 @@
-﻿@page "/"
+﻿@page "/treeview"
 
 <MudPaper Width="300px" Elevation="0">
-    <MudTreeView Items="Tasks" @bind-ActivatedValue="ActivatedValue" @bind-SelectedValues="SelectedValues" ExpandOnClick="false">
+    <MudTreeView Items="Tasks" @bind-ActivatedValue="ActivatedValue" @bind-SelectedValues="SelectedValues"
+        ExpandOnClick="false">
         <ItemTemplate>
             <MudTreeViewItem Expanded="true" Items="@context.Children" Value="@context" Text="@context.AsyncTask.Id" />
         </ItemTemplate>
