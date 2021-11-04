@@ -1,24 +1,26 @@
-﻿@page "/"
+﻿@page "/asyctest"
+@using Humanizer.Localisation
 @using Octopus.TaskTree;
 @using System.Threading.Tasks;
 @using System.Threading;
+@using Humanizer;
 
-<h3>Async tasks tester</h3>
+<h3>Async task tester (2 tasks)</h3>
 
 Overall progress
-<div class="progress">
+<div class="progress" style="margin-top:.5rem">
     <div class="progress-bar" role="progressbar" aria-valuenow="70"
          aria-valuemin="0" aria-valuemax="100" style="width:@(progressValue)%">
-        <span class="sr-only">70% Complete</span>
     </div>
 </div>
 
 <div style="margin-top:20px; display:flex; flex-direction:row">
-    <button type="button" class="btn btn-info btn-sm" @onclick="Start" disabled="@isBusy">Start</button>
+    <button type="button" class="btn btn-info btn-sm" @onclick="ExecuteInSeries" disabled="@isBusy">Execute in series</button>
+    <span style="margin-left:10px"></span>
+    <button type="button" class="btn btn-info btn-sm" @onclick="ExecuteConcurrently" disabled="@isBusy">Execute concurrently</button>
     <span style="margin-left:10px"></span>
     <button type="button" class="btn btn-secondary btn-sm" @onclick="Cancel" disabled="@(!isBusy)">Cancel</button>
     <span style="margin-left:10px"></span>
-    <button type="button" class="btn btn-warning btn-sm" @onclick="Reset" disabled="@isBusy">Reset</button>
 </div>
 
 <div style="margin-top:10px">
@@ -33,7 +35,21 @@ Overall progress
     bool isBusy;
     IAsyncTask rootTask;
 
-    private async Task Start()
+    private async Task ExecuteInSeries()
+    {
+        await Execute(ExecutionMode.Series);
+    }
+
+    private async Task ExecuteConcurrently()
+    {
+        await Execute(ExecutionMode.Concurrent);
+    }
+
+    private enum ExecutionMode
+    {
+        Series, Concurrent
+    }
+    private async Task Execute(ExecutionMode executionMode)
     {
         if (this.progressValue == 100)
         {
@@ -46,11 +62,17 @@ Overall progress
         cancellationTokenSource = new CancellationTokenSource();
         isBusy = true;
         message = "Starting operation...";
-        await rootTask.ExecuteInSeries(cancellationTokenSource.Token, false);
+        DateTime start = DateTime.Now;
+        
+        await (executionMode == ExecutionMode.Series ?
+          rootTask.ExecuteInSeries(cancellationTokenSource.Token, false) : 
+          rootTask.ExecuteConcurrently(cancellationTokenSource.Token, false));
+
         isBusy = false;
+        TimeSpan duration = DateTime.Now - start;
 
         this.progressValue = cancellationTokenSource.IsCancellationRequested ? 0 : 100;
-        this.message = $"Operation {(cancellationTokenSource.IsCancellationRequested ? "Cancelled" : "Completed")}.";
+        this.message = $"Operation {(cancellationTokenSource.IsCancellationRequested ? "Cancelled" : "Completed")}. Took - {duration.Humanize(2, null, TimeUnit.Minute, TimeUnit.Millisecond)}";
     }
 
     private void Reset()
@@ -74,8 +96,8 @@ Overall progress
             while (!token.IsCancellationRequested && N < total)
             {
                 await Task.Delay(10);
-                N++;
-                reporter.Report(TaskTree.TaskStatus.InProgress, (N / total) * 100);
+                N+=3;
+                reporter.Report(TaskTree.TaskStatus.InProgress, (N / total) * 100, "Task-1");
             }
         });
 
@@ -86,8 +108,8 @@ Overall progress
             while (!token.IsCancellationRequested && N < total)
             {
                 await Task.Delay(100);
-                N++;
-                reporter.Report(TaskTree.TaskStatus.InProgress, (N / total) * 100);
+                N+=5;
+                reporter.Report(TaskTree.TaskStatus.InProgress, (N / total) * 100, "Task-2");
             }
         });
 
@@ -97,7 +119,7 @@ Overall progress
         rootTask.Reporting += (sender, eventArgs) =>
         {
             this.progressValue = eventArgs.ProgressValue;
-            this.message = $"Execution in progress {this.progressValue:N2}%";
+            this.message = $"Execution in progress: State:{eventArgs.ProgressState}, Progress:{this.progressValue:N2}%";
             StateHasChanged();
         };
     }

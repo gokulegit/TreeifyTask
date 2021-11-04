@@ -1,14 +1,228 @@
-﻿@page "/treeview"
+﻿@page "/"
+@using Octopus.BlazorSample.Components
+@using TaskStatus = Octopus.TaskTree.TaskStatus;
+@using System.Threading;
+@using Octopus.BlazorSample;
 
-<MudPaper Width="300px" Elevation="0">
-    <MudTreeView Items="Tasks" @bind-ActivatedValue="ActivatedValue" @bind-SelectedValues="SelectedValues"
-        ExpandOnClick="false">
-        <ItemTemplate>
-            <MudTreeViewItem Expanded="true" Items="@context.Children" Value="@context" Text="@context.AsyncTask.Id" />
-        </ItemTemplate>
-    </MudTreeView>
-</MudPaper>
+<img src="octopuslogo.png" style="width:6rem;height:6rem;" /> OCTOPUS
 
-<div style="width: 100%; margin-top:20px">
-    <MudText Typo="@Typo.subtitle1">Activated item: @(ActivatedValue?.AsyncTask?.Id)</MudText>
+<div style="margin-bottom:1rem">
+    <Field>
+        <FieldLabel>Overall progress @OverallProgressValue.ToString("F2")%</FieldLabel>
+        @if (IsIndeterminate)
+        {
+            <Progress Value="100" Striped Animated />
+        }
+        else
+        {
+            <Progress Value=@((int)OverallProgressValue) Striped />
+        }
+    </Field>
+    <Field>
+        <FieldLabel>Overall progress state</FieldLabel>
+        <textarea class="form-control" value=@(OverallProgressState) rows="1" readonly />
+    </Field>
+    <Field>
+        <FieldLabel>Execution style </FieldLabel>
+        <RadioGroup TValue="ExecutionStyleEnum" @bind-CheckedValue=ExecutionStyle>
+            <Radio TValue="ExecutionStyleEnum" Value=@ExecutionStyleEnum.Series Disabled=@(IsBusy)>Series </Radio>
+            <Radio TValue="ExecutionStyleEnum" Value=@ExecutionStyleEnum.Concurrent Disabled=@(IsBusy)>Concurrent
+            </Radio>
+        </RadioGroup>
+    </Field>
+    <div>
+        <Button Color=Color.Primary Size=Size.Small Disabled=@IsBusy @onclick=(StartExec)>Start</Button>
+        <Button Color=Color.Secondary Size=Size.Small Disabled=@(!IsBusy) @onclick=(CancelExec)>Cancel</Button>
+        <Button Color=Color.Warning Size=Size.Small Disabled=@IsBusy @onclick=(ResetAll)>Reset tasks</Button>
+    </div>
 </div>
+
+<div style="border-top:1px solid #f2f3f3; margin-bottom:1rem" />
+
+<div style="display:flex; flex-wrap:wrap; width:100%;">
+
+    <div style="flex:1; min-width:2rem; max-width:20rem;margin-bottom:1rem">
+        <TreeView Nodes="Tasks" GetChildNodes="@(item => item.ChildTasks)"
+            HasChildNodes="@(item => item != null && item.ChildTasks != null && item.ChildTasks.Any())"
+            @bind-SelectedNode=ActivatedValue @bind-ExpandedNodes=ExpandedNodes>
+            <NodeContent>
+                <TaskStatusBadge Status=@(context?.TaskStatus ?? default(TaskStatus)) /> @context?.Id
+            </NodeContent>
+        </TreeView>
+    </div>
+
+    <div style="flex: 1; min-width:500px; ">
+        <TaskProgressView @bind-AsyncTask=@ActivatedValue />
+    </div>
+
+</div>
+
+@code
+{
+    private bool IsBusy { get; set; }
+    private bool IsIndeterminate { get; set; }
+
+    private IList<IAsyncTask> Tasks { get; set; }
+
+    private IAsyncTask RootTask { get; set; }
+
+    private IAsyncTask ActivatedValue { get; set; }
+
+    private IList<IAsyncTask> ExpandedNodes { get; set; }
+
+    private CancellationTokenSource _tokenSource;
+    private double OverallProgressValue { get; set; }
+    private object OverallProgressState { get; set; }
+
+    private enum ExecutionStyleEnum
+    {
+        Series,
+        Concurrent
+    }
+
+    private ExecutionStyleEnum ExecutionStyle { get; set; }
+
+    protected override void OnInitialized()
+    {
+        CreateTasks();
+    }
+
+    private void CreateTasks()
+    {
+        CodeBehavior defaultCodeBehavior = new();
+
+        RootTask = new AsyncTask("TaskNode-1");
+        RootTask.AddChild(new AsyncTask("TaskNode-1.1", async (reporter, token) => await SimpleTimer(reporter, token,
+        defaultCodeBehavior with { IntervalDelay = 20 }, "1.1")));
+        var subTask = new AsyncTask("TaskNode-1.2");
+        subTask.AddChild(new AsyncTask("TaskNode-1.2.1", async (reporter, token) => await SimpleTimer(reporter, token,
+        defaultCodeBehavior with { ShouldPerformAnInDeterminateAction = true, InDeterminateActionDelay = 2000 }, "1.2.1")));
+
+        var subTask2 = new AsyncTask("TaskNode-1.2.2");
+        subTask2.AddChild(new AsyncTask("TaskNode-1.2.2.1", async (reporter, token) => await SimpleTimer(reporter, token,
+        defaultCodeBehavior with { ShouldThrowExceptionDuringProgress = false, IntervalDelay = 65 }, "1.2.2.1")));
+
+        subTask.AddChild(subTask2);
+        subTask.AddChild(new AsyncTask("TaskNode-1.2.3", async (reporter, token) => await SimpleTimer(reporter, token,
+        defaultCodeBehavior with { IntervalDelay = 60 }, "1.2.3")));
+        subTask.AddChild(new AsyncTask("TaskNode-1.2.4", async (reporter, token) => await SimpleTimer(reporter, token,
+        defaultCodeBehavior with { IntervalDelay = 30 }, "1.2.4")));
+
+        RootTask.AddChild(subTask);
+        RootTask.AddChild(new AsyncTask("TaskNode-1.3", async (reporter, token) => await SimpleTimer(reporter, token,
+        defaultCodeBehavior with { IntervalDelay = 160 }, "1.3")));
+        RootTask.AddChild(new AsyncTask("TaskNode-1.4", async (reporter, token) => await SimpleTimer(reporter, token,
+        defaultCodeBehavior with { IntervalDelay = 50 }, "1.4")));
+        RootTask.AddChild(new AsyncTask("TaskNode-1.5", async (reporter, token) => await SimpleTimer(reporter, token,
+        defaultCodeBehavior with { IntervalDelay = 20 }, "1.5")));
+        RootTask.AddChild(new AsyncTask("TaskNode-1.6", async (reporter, token) => await SimpleTimer(reporter, token,
+        defaultCodeBehavior with { IntervalDelay = 250 }, "1.6")));
+
+        Tasks = new List<IAsyncTask>();
+        ExpandedNodes = new List<IAsyncTask>() { RootTask, subTask, subTask2 };
+        Tasks.Add(RootTask);
+
+        ActivatedValue = RootTask;
+
+        RootTask.Reporting += RootTaskReporting;
+    }
+
+    private void RootTaskReporting(object sender, ProgressReportingEventArgs eventArgs)
+    {
+        if (eventArgs.TaskStatus == TaskStatus.InDeterminate)
+        {
+            IsIndeterminate = true;
+        }
+        else
+        {
+            IsIndeterminate = false;
+            OverallProgressValue = eventArgs.ProgressValue;
+        }
+        OverallProgressState = eventArgs.ProgressState;
+        StateHasChanged();
+    }
+
+    private async Task StartExec()
+    {
+        IsBusy = true;
+        _tokenSource = new CancellationTokenSource();
+        if (ExecutionStyle == ExecutionStyleEnum.Series)
+        {
+            await RootTask.ExecuteInSeries(_tokenSource.Token, false);
+        }
+        else
+        {
+            await RootTask.ExecuteConcurrently(_tokenSource.Token, false);
+        }
+        IsBusy = false;
+    }
+
+    private void CancelExec()
+    {
+        _tokenSource?.Cancel();
+    }
+
+    private void ResetAll()
+    {
+        CreateTasks();
+    }
+
+    private async Task SimpleTimer(IProgressReporter progressReporter, CancellationToken token, CodeBehavior behaviors =
+    null, string progressMessage = null)
+    {
+        behaviors ??= new CodeBehavior();
+        progressMessage ??= "In progress ";
+        progressReporter.Report(TaskStatus.InProgress, 0, $"{progressMessage}: 0%");
+        bool error = false;
+
+        if (behaviors.ShouldThrowException)
+        {
+            throw new Exception();
+        }
+
+        try
+        {
+            if (behaviors.ShouldPerformAnInDeterminateAction)
+            {
+                progressReporter.Report(TaskStatus.InDeterminate, 0, $"{progressMessage}: 0%");
+                if (behaviors.ShouldHangInAnInDeterminateState)
+                {
+                    await Task.Delay(-1);
+                }
+                await Task.Delay(behaviors.InDeterminateActionDelay);
+            }
+            else
+            {
+                foreach (int i in Enumerable.Range(1, 100))
+                {
+                    if (behaviors.ShouldThrowExceptionDuringProgress)
+                    {
+                        throw new Exception();
+                    }
+                    if (token.IsCancellationRequested)
+                    {
+                        progressReporter.Report(TaskStatus.Cancelled, i);
+                        break;
+                    }
+                    await Task.Delay(behaviors.IntervalDelay);
+                    progressReporter.Report(TaskStatus.InProgress, i, $"{progressMessage}: {i}%");
+
+                    if (i > 20 && behaviors.ShouldHangDuringProgress)
+                    {
+                        await Task.Delay(-1);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            error = true;
+            progressReporter.Report(TaskStatus.Failed, 0, ex);
+            throw;
+        }
+        if (!error && !token.IsCancellationRequested)
+        {
+            progressReporter.Report(TaskStatus.Completed, 100, $"{progressMessage}: 100%");
+        }
+    }
+}

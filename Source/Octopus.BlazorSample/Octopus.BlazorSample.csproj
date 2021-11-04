@@ -5,7 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazorise.Bootstrap" Version="0.9.4.7" />
+    <PackageReference Include="Blazorise.Icons.FontAwesome" Version="0.9.4.7" />
+    <PackageReference Include="Blazorise.TreeView" Version="0.9.4.7" />
+    <PackageReference Include="Humanizer" Version="2.11.10" />
     <PackageReference Include="Octopus.TaskTree" Version="1.0.0" />
-    <PackageReference Include="MudBlazor" Version="5.1.5" />
   </ItemGroup>
 </Project>

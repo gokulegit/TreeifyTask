@@ -1,0 +1,25 @@
+@using TaskStatus = Octopus.TaskTree.TaskStatus;
+
+<span style="width:10px;height:10px; display:inline-block; background-color:@(TranslateStatus())" />
+@code
+{
+    [Parameter]
+    public TaskStatus? Status { get; set; }
+
+    [Parameter]
+    public EventCallback<TaskStatus?> StatusChanged { get; set; }
+
+    private string TranslateStatus()
+    {
+        return (Status ?? default(TaskStatus)) switch
+        {
+            TaskStatus.NotStarted => "#ccc",
+            TaskStatus.InProgress => "orange",
+            TaskStatus.Completed => "green",
+            TaskStatus.Cancelled => "blue",
+            TaskStatus.Failed => "red",
+            TaskStatus.InDeterminate => "brown",
+            _ => "#ccc"
+        };
+    }
+}

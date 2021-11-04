@@ -1,0 +1,46 @@
+@using TaskStatus = Octopus.TaskTree.TaskStatus;
+
+<Field>
+    <FieldLabel>Task Id</FieldLabel>
+    <TextEdit ReadOnly Text=@AsyncTask?.Id />
+</Field>
+
+<Field>
+    <FieldLabel>Task status</FieldLabel>
+    <TextEdit ReadOnly Text=@AsyncTask?.TaskStatus.ToString("G") />
+</Field>
+
+<Field>
+    <FieldLabel>Progress value @(AsyncTask?.ProgressValue.ToString("F2"))%</FieldLabel>
+    @if (AsyncTask != null)
+    {
+        @if (AsyncTask.TaskStatus == TaskStatus.InDeterminate)
+        {
+            <Progress Value=100 Striped Animated />
+        }
+        else
+        {
+            <Progress Value=@((int)AsyncTask.ProgressValue) />
+        }
+    }
+    else
+    {
+        <Progress Value=0 />
+    }
+
+</Field>
+
+<Field>
+    <FieldLabel>Progress message</FieldLabel>
+    <textarea class="form-control" readonly rows="3" />
+</Field>
+
+@code
+{
+    [Parameter]
+    public IAsyncTask AsyncTask { get; set; }
+
+    [Parameter]
+    public EventCallback<IAsyncTask> AsyncTaskChanged { get; set; }
+
+}
