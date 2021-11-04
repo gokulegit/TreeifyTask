@@ -81,6 +81,6 @@ Here's the list of items in backlog for the upcoming releases
 
 - [x] Core Component
 - [x] Wpf Sample
-- [ ] Blazor Server Sample
+- [x] Blazor Server Sample
 - [ ] Syntax Enhancement on subtasks creation
 
