@@ -40,21 +40,21 @@ childTask_2.SetAction(async (reporter, cancellationToken) => {
 });
 
 // Before starting the execution, you need to subscribe for progress report.
-rootTask.OnReporting += (sender, eventArgs) => {
+rootTask.Reporting += (object sender, ProgressReportingEventArgs eventArgs) => {
     eventArgs.ProgressValue; // -> this will represent the overall progress
 };
 
 // Create and pass the cancellation token
 var tokenSource = new CancellationTokenSource();
-cancellationToken = tokenSource.Token;
+var token = tokenSource.Token;
 
 // Start the execution concurrently
-rootTask.ExecuteConcurrently(cancellationToken, true);
+rootTask.ExecuteConcurrently(cancellationToken: token, throwOnError: true);
 
 // OR
 
 // Start the execution in series
-rootTask.ExecuteInSeries(cancellationToken, true);
+rootTask.ExecuteInSeries(cancellationToken: token, throwOnError: true);
 
 ```
 
@@ -84,3 +84,44 @@ Here's the list of items in backlog for the upcoming releases
 - [x] Blazor Server Sample
 - [ ] Syntax Enhancement on subtasks creation
 
+Sample tree below:
+
+``` C#
+var rootTask =
+    new TaskNode("Root", null,
+        new TaskNode("Task1", Task1_Action,
+            new TaskNode("Task1.1", Task1_1_Action),
+            new TaskNode("Task1.2", Task1_2_Action)),
+        new TaskNode("Task2", null,
+            new TaskNode("Task2.1", null,
+                new TaskNode("Task2.1.1", Task2_1_1_Action),
+                new TaskNode("Task2.1.2", Task_2_1_2_Action)),
+            new TaskNode("Task2.2", Task2_2_Action)),
+        new TaskNode("Task3", Task3_Action),
+        new TaskNode("Task4", Task4_Action),
+        new TaskNode("Task5", Task5_Action),
+        new TaskNode("Task6", Task6_Action));
+
+
+private async Task Task1_Action(IProgressReporter reported, CancellationToken token)
+{
+    reporter.ReportProgress(TaskStatus.InProgress, 10, "Started...");
+    await Task.Delay(1000);
+    reporter.ReportProgress(TaskStatus.InProgress, 40, "InProgress...");
+    await Task.Delay(1000);
+    reporter.ReportProgress(TaskStatus.Completed, 100, "Done...");
+}
+```
+
+- [ ] Find a Child and Set Preferences to it.
+
+``` C#
+var task2_1_2 = rootTask.Find("Task2/Task2.1/Task2.1.2");
+
+// Preferences
+task2_1_2.ExecutionMode = ExecutionMode.Series;
+task2_1_2.ThrowOnError = false;
+task2_1_2.ExecutionTimeout = 300; // milliseconds.
+
+rootTask.ExecuteConcurrently(cancellationToken: token, throwOnError: true);
+```
