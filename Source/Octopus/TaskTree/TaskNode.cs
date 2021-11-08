@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Octopus.TaskTree
 {
-    public class AsyncTask : IAsyncTask
+    public class TaskNode : ITaskNode
     {
         private static Random rnd = new Random();
         private readonly List<Task> taskObjects = new();
-        private readonly List<IAsyncTask> childTasks = new();
+        private readonly List<ITaskNode> childTasks = new();
         private bool hasCustomAction;
         private Func<IProgressReporter, CancellationToken, Task> action =
             async (rep, tok) => await Task.Yield();
@@ -19,19 +19,19 @@ namespace Octopus.TaskTree
         private bool seriesRunnerIsBusy;
         private bool concurrentRunnerIsBusy;
 
-        public AsyncTask()
+        public TaskNode()
         {
             this.Id = rnd.Next() + string.Empty;
             this.Reporting += OnSelfReporting;
         }
 
-        public AsyncTask(string Id)
+        public TaskNode(string Id)
             : this()
         {
             this.Id = Id ?? rnd.Next() + string.Empty;
         }
 
-        public AsyncTask(string Id, Func<IProgressReporter, CancellationToken, Task> cancellableProgressReportingAsyncFunction)
+        public TaskNode(string Id, Func<IProgressReporter, CancellationToken, Task> cancellableProgressReportingAsyncFunction)
             : this(Id)
         {
             this.SetAction(cancellableProgressReportingAsyncFunction);
@@ -43,19 +43,20 @@ namespace Octopus.TaskTree
         public double ProgressValue { get; private set; }
         public object ProgressState { get; private set; }
         public TaskStatus TaskStatus { get; private set; }
-        public IAsyncTask Parent { get; set; }
-        public IEnumerable<IAsyncTask> ChildTasks =>
+        public ITaskNode Parent { get; set; }
+        public IEnumerable<ITaskNode> ChildTasks =>
             this.childTasks;
 
         #endregion Props
 
-        public void AddChild(IAsyncTask childTask)
+        public void AddChild(ITaskNode childTask)
         {
             childTask = childTask ?? throw new ArgumentNullException(nameof(childTask));
-
-
             childTask.Parent = this;
+            
+            // Ensure this after setting its parent as this
             EnsureNoCycles(childTask);
+
             childTask.Reporting += OnChildReporting;
             childTasks.Add(childTask);
         }
@@ -69,7 +70,7 @@ namespace Octopus.TaskTree
                 this.ProgressState = null;
             }
 
-            public ActionReport(IAsyncTask task)
+            public ActionReport(ITaskNode task)
             {
                 this.Id = task.Id;
                 this.TaskStatus = task.TaskStatus;
@@ -98,7 +99,7 @@ namespace Octopus.TaskTree
         private void OnChildReporting(object sender, ProgressReportingEventArgs eventArgs)
         {
             // Child task that reports 
-            var cTask = sender as IAsyncTask;
+            var cTask = sender as ITaskNode;
 
             var allReports = childTasks.Select(t => new ActionReport(t));
             if (hasCustomAction)
@@ -211,7 +212,7 @@ namespace Octopus.TaskTree
             }
         }
 
-        public IEnumerable<IAsyncTask> ToFlatList()
+        public IEnumerable<ITaskNode> ToFlatList()
         {
             return FlatList(this);
         }
@@ -230,10 +231,14 @@ namespace Octopus.TaskTree
             }
         }
 
-        private void EnsureNoCycles(IAsyncTask newTask)
+        /// <summary>
+        /// Throws <see cref="AsyncTasksCycleDetectedException"/>
+         /// </summary>
+        /// <param name="newTask"></param>
+        private void EnsureNoCycles(ITaskNode newTask)
         {
-            var thisNode = this as IAsyncTask;
-            HashSet<IAsyncTask> hSet = new HashSet<IAsyncTask>();
+            var thisNode = this as ITaskNode;
+            HashSet<ITaskNode> hSet = new HashSet<ITaskNode>();
             while (true)
             {
                 if (thisNode.Parent is null)
@@ -242,7 +247,7 @@ namespace Octopus.TaskTree
                 }
                 if (hSet.Contains(thisNode))
                 {
-                    throw new AsyncTasksCycleDetectedException(thisNode, newTask);
+                    throw new TaskNodeCycleDetectedException(thisNode, newTask);
                 }
                 hSet.Add(thisNode);
                 thisNode = thisNode.Parent;
@@ -250,11 +255,11 @@ namespace Octopus.TaskTree
             var existingTask = FlatList(thisNode).FirstOrDefault(t => t == newTask);
             if (existingTask != null)
             {
-                throw new AsyncTasksCycleDetectedException(newTask, existingTask.Parent);
+                throw new TaskNodeCycleDetectedException(newTask, existingTask.Parent);
             }
         }
 
-        private IEnumerable<IAsyncTask> FlatList(IAsyncTask root)
+        private IEnumerable<ITaskNode> FlatList(ITaskNode root)
         {
             yield return root;
             foreach (var ct in root.ChildTasks)
@@ -264,7 +269,7 @@ namespace Octopus.TaskTree
             }
         }
 
-        public void RemoveChild(IAsyncTask childTask)
+        public void RemoveChild(ITaskNode childTask)
         {
             childTask.Reporting -= OnChildReporting;
             childTasks.Remove(childTask);

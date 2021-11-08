@@ -2,25 +2,25 @@
 
 <Field>
     <FieldLabel>Task Id</FieldLabel>
-    <TextEdit ReadOnly Text=@AsyncTask?.Id />
+    <TextEdit ReadOnly Text=@TaskNode?.Id />
 </Field>
 
 <Field>
     <FieldLabel>Task status</FieldLabel>
-    <TextEdit ReadOnly Text=@AsyncTask?.TaskStatus.ToString("G") />
+    <TextEdit ReadOnly Text=@TaskNode?.TaskStatus.ToString("G") />
 </Field>
 
 <Field>
-    <FieldLabel>Progress value @(AsyncTask?.ProgressValue.ToString("F2"))%</FieldLabel>
-    @if (AsyncTask != null)
+    <FieldLabel>Progress value @(TaskNode?.ProgressValue.ToString("F2"))%</FieldLabel>
+    @if (TaskNode != null)
     {
-        @if (AsyncTask.TaskStatus == TaskStatus.InDeterminate)
+        @if (TaskNode.TaskStatus == TaskStatus.InDeterminate)
         {
             <Progress Value=100 Striped Animated />
         }
         else
         {
-            <Progress Value=@((int)AsyncTask.ProgressValue) />
+            <Progress Value=@((int)TaskNode.ProgressValue) />
         }
     }
     else
@@ -32,15 +32,15 @@
 
 <Field>
     <FieldLabel>Progress message</FieldLabel>
-    <textarea class="form-control" readonly rows="3" value=@AsyncTask.ProgressState />
+    <textarea class="form-control" readonly rows="3" value=@TaskNode.ProgressState />
 </Field>
 
 @code
 {
     [Parameter]
-    public IAsyncTask AsyncTask { get; set; }
+    public ITaskNode TaskNode { get; set; }
 
     [Parameter]
-    public EventCallback<IAsyncTask> AsyncTaskChanged { get; set; }
+    public EventCallback<ITaskNode> TaskNodeChanged { get; set; }
 
 }

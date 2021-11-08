@@ -36,7 +36,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Octopus" Version="1.0.0.0" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -65,7 +64,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AsyncTaskViewModel.cs" />
+    <Compile Include="TaskNodeViewModel.cs" />
     <Compile Include="CodeBehavior.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -100,6 +99,11 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\octopuslogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Octopus.TaskTree">
+      <Version>1.0.1</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

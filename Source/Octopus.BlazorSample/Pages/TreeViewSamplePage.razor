@@ -52,7 +52,7 @@
     </div>
 
     <div style="flex: 1; min-width:500px; ">
-        <TaskProgressView @bind-AsyncTask=@ActivatedValue />
+        <TaskProgressView @bind-TaskNode=@ActivatedValue />
     </div>
 
 </div>
@@ -62,13 +62,13 @@
     private bool IsBusy { get; set; }
     private bool IsIndeterminate { get; set; }
 
-    private IList<IAsyncTask> Tasks { get; set; }
+    private IList<ITaskNode> Tasks { get; set; }
 
-    private IAsyncTask RootTask { get; set; }
+    private ITaskNode RootTask { get; set; }
 
-    private IAsyncTask ActivatedValue { get; set; }
+    private ITaskNode ActivatedValue { get; set; }
 
-    private IList<IAsyncTask> ExpandedNodes { get; set; }
+    private IList<ITaskNode> ExpandedNodes { get; set; }
 
     private CancellationTokenSource _tokenSource;
     private double OverallProgressValue { get; set; }
@@ -91,35 +91,35 @@
     {
         CodeBehavior defaultCodeBehavior = new();
 
-        RootTask = new AsyncTask("TaskNode-1");
-        RootTask.AddChild(new AsyncTask("TaskNode-1.1", async (reporter, token) => await SimpleTimer(reporter, token,
+        RootTask = new TaskNode("TaskNode-1");
+        RootTask.AddChild(new TaskNode("TaskNode-1.1", async (reporter, token) => await SimpleTimer(reporter, token,
         defaultCodeBehavior with { IntervalDelay = 20 }, "1.1")));
-        var subTask = new AsyncTask("TaskNode-1.2");
-        subTask.AddChild(new AsyncTask("TaskNode-1.2.1", async (reporter, token) => await SimpleTimer(reporter, token,
+        var subTask = new TaskNode("TaskNode-1.2");
+        subTask.AddChild(new TaskNode("TaskNode-1.2.1", async (reporter, token) => await SimpleTimer(reporter, token,
         defaultCodeBehavior with { ShouldPerformAnInDeterminateAction = true, InDeterminateActionDelay = 2000 }, "1.2.1")));
 
-        var subTask2 = new AsyncTask("TaskNode-1.2.2");
-        subTask2.AddChild(new AsyncTask("TaskNode-1.2.2.1", async (reporter, token) => await SimpleTimer(reporter, token,
+        var subTask2 = new TaskNode("TaskNode-1.2.2");
+        subTask2.AddChild(new TaskNode("TaskNode-1.2.2.1", async (reporter, token) => await SimpleTimer(reporter, token,
         defaultCodeBehavior with { ShouldThrowExceptionDuringProgress = false, IntervalDelay = 65 }, "1.2.2.1")));
 
         subTask.AddChild(subTask2);
-        subTask.AddChild(new AsyncTask("TaskNode-1.2.3", async (reporter, token) => await SimpleTimer(reporter, token,
+        subTask.AddChild(new TaskNode("TaskNode-1.2.3", async (reporter, token) => await SimpleTimer(reporter, token,
         defaultCodeBehavior with { IntervalDelay = 60 }, "1.2.3")));
-        subTask.AddChild(new AsyncTask("TaskNode-1.2.4", async (reporter, token) => await SimpleTimer(reporter, token,
+        subTask.AddChild(new TaskNode("TaskNode-1.2.4", async (reporter, token) => await SimpleTimer(reporter, token,
         defaultCodeBehavior with { IntervalDelay = 30 }, "1.2.4")));
 
         RootTask.AddChild(subTask);
-        RootTask.AddChild(new AsyncTask("TaskNode-1.3", async (reporter, token) => await SimpleTimer(reporter, token,
+        RootTask.AddChild(new TaskNode("TaskNode-1.3", async (reporter, token) => await SimpleTimer(reporter, token,
         defaultCodeBehavior with { IntervalDelay = 160 }, "1.3")));
-        RootTask.AddChild(new AsyncTask("TaskNode-1.4", async (reporter, token) => await SimpleTimer(reporter, token,
+        RootTask.AddChild(new TaskNode("TaskNode-1.4", async (reporter, token) => await SimpleTimer(reporter, token,
         defaultCodeBehavior with { IntervalDelay = 50 }, "1.4")));
-        RootTask.AddChild(new AsyncTask("TaskNode-1.5", async (reporter, token) => await SimpleTimer(reporter, token,
+        RootTask.AddChild(new TaskNode("TaskNode-1.5", async (reporter, token) => await SimpleTimer(reporter, token,
         defaultCodeBehavior with { IntervalDelay = 20 }, "1.5")));
-        RootTask.AddChild(new AsyncTask("TaskNode-1.6", async (reporter, token) => await SimpleTimer(reporter, token,
+        RootTask.AddChild(new TaskNode("TaskNode-1.6", async (reporter, token) => await SimpleTimer(reporter, token,
         defaultCodeBehavior with { IntervalDelay = 250 }, "1.6")));
 
-        Tasks = new List<IAsyncTask>();
-        ExpandedNodes = new List<IAsyncTask>() { RootTask, subTask, subTask2 };
+        Tasks = new List<ITaskNode>();
+        ExpandedNodes = new List<ITaskNode>() { RootTask, subTask, subTask2 };
         Tasks.Add(RootTask);
 
         ActivatedValue = RootTask;

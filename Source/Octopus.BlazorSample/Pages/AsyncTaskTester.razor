@@ -33,7 +33,7 @@ Overall progress
     CancellationTokenSource cancellationTokenSource;
     string message;
     bool isBusy;
-    IAsyncTask rootTask;
+    ITaskNode rootTask;
 
     private async Task ExecuteInSeries()
     {
@@ -87,9 +87,9 @@ Overall progress
 
     private void CreateTask()
     {
-        rootTask = new AsyncTask("root");
+        rootTask = new TaskNode("root");
 
-        var task1 = new AsyncTask("Task-1", async (reporter, token) =>
+        var task1 = new TaskNode("Task-1", async (reporter, token) =>
         {
             double N = 0;
             double total = 1000;
@@ -101,7 +101,7 @@ Overall progress
             }
         });
 
-        var task2 = new AsyncTask("Task-2", async (reporter, token) =>
+        var task2 = new TaskNode("Task-2", async (reporter, token) =>
         {
             double N = 0;
             double total = 100;

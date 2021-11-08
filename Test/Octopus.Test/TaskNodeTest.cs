@@ -5,16 +5,16 @@ using System.Linq;
 namespace Octopus.Test
 {
     [TestClass]
-    public class AsyncTaskTest
+    public class TaskNodeTest
     {
         [TestMethod]
-        [ExpectedException(typeof(AsyncTasksCycleDetectedException))]
+        [ExpectedException(typeof(TaskNodeCycleDetectedException))]
         public void TestCycleDetection()
         {
-            var t1 = new AsyncTask("t1");
-            var t2 = new AsyncTask("t2");
-            var t3 = new AsyncTask("t3");
-            var t4 = new AsyncTask("t4");
+            var t1 = new TaskNode("t1");
+            var t2 = new TaskNode("t2");
+            var t3 = new TaskNode("t3");
+            var t4 = new TaskNode("t4");
             t1.AddChild(t2);
             t2.AddChild(t3);
             t2.AddChild(t4);
@@ -22,13 +22,13 @@ namespace Octopus.Test
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AsyncTasksCycleDetectedException))]
+        [ExpectedException(typeof(TaskNodeCycleDetectedException))]
         public void TestCycleDetectionUsingParent()
         {
-            var t1 = new AsyncTask("t1");
-            var t2 = new AsyncTask("t2");
-            var t3 = new AsyncTask("t3");
-            var t4 = new AsyncTask("t4");
+            var t1 = new TaskNode("t1");
+            var t2 = new TaskNode("t2");
+            var t3 = new TaskNode("t3");
+            var t4 = new TaskNode("t4");
             t1.AddChild(t2);
             t2.AddChild(t3);
             t2.AddChild(t4);
@@ -39,10 +39,10 @@ namespace Octopus.Test
         [TestMethod]
         public void TestFlatList()
         {
-            var t1 = new AsyncTask("t1");
-            var t2 = new AsyncTask("t2");
-            var t3 = new AsyncTask("t3");
-            var t4 = new AsyncTask("t4");
+            var t1 = new TaskNode("t1");
+            var t2 = new TaskNode("t2");
+            var t3 = new TaskNode("t3");
+            var t4 = new TaskNode("t4");
             t2.AddChild(t1);
             t1.AddChild(t3);
             t3.AddChild(t4);

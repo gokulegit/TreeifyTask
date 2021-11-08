@@ -4,7 +4,7 @@ Dotnet component that helps you to manage `async` tasks in a hierarchical fashio
 
 There are situations that we might have to manage tasks in a tree like structure. Means, the parent task depends on child tasks to be completed in a serial or concurrent fashion. The parent task needs to show the average progress value of overall operation.
 
-This component `IAsyncTask` lets you to Create a task, Set a custom asynchronous function `Func<IProgressReporter, CancellationToken, Task>` for it, Create one or more child tasks and get overall progress.
+This component `ITaskNode` lets you to Create a task, Set a custom asynchronous function `Func<IProgressReporter, CancellationToken, Task>` for it, Create one or more child tasks and get overall progress.
 
 You have several options that you can execute them concurrently or in series. The overall progress will be updated to parent task.
 
@@ -14,10 +14,10 @@ Please see below code snippet for the better understanding.
 // ---------------
 // Create a structure of Tasks
 // ---------------
-IAsyncTask rootTask = new AsyncTask("root");
+ITaskNode rootTask = new TaskNode("root");
 
-IAsyncTask childTask_1 = new AsyncTask("Task-1");
-IAsyncTask childTask_2 = new AsyncTask("Task-2");
+ITaskNode childTask_1 = new TaskNode("Task-1");
+ITaskNode childTask_2 = new TaskNode("Task-2");
 
 rootTask.AddChild(childTask_1);
 rootTask.AddChild(childTask_2);

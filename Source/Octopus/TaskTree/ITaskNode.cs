@@ -5,20 +5,20 @@ using System.Threading.Tasks;
 
 namespace Octopus.TaskTree
 {
-    public interface IAsyncTask : IProgressReporter
+    public interface ITaskNode : IProgressReporter
     {
         string Id { get; set; }
         double ProgressValue { get; }
         object ProgressState { get; }
-        IAsyncTask Parent { get; set; }
-        IEnumerable<IAsyncTask> ChildTasks { get; }
+        ITaskNode Parent { get; set; }
+        IEnumerable<ITaskNode> ChildTasks { get; }
         TaskStatus TaskStatus { get; }
         void SetAction(Func<IProgressReporter, CancellationToken, Task> cancellableProgressReportingAsyncFunction);
         Task ExecuteInSeries(CancellationToken cancellationToken, bool throwOnError);
         Task ExecuteConcurrently(CancellationToken cancellationToken, bool throwOnError);
-        void AddChild(IAsyncTask childTask);
-        void RemoveChild(IAsyncTask childTask);
+        void AddChild(ITaskNode childTask);
+        void RemoveChild(ITaskNode childTask);
         void ResetStatus();
-        IEnumerable<IAsyncTask> ToFlatList();
+        IEnumerable<ITaskNode> ToFlatList();
     }
 }
