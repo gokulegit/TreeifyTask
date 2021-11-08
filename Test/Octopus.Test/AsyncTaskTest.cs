@@ -22,6 +22,21 @@ namespace Octopus.Test
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AsyncTasksCycleDetectedException))]
+        public void TestCycleDetectionUsingParent()
+        {
+            var t1 = new AsyncTask("t1");
+            var t2 = new AsyncTask("t2");
+            var t3 = new AsyncTask("t3");
+            var t4 = new AsyncTask("t4");
+            t1.AddChild(t2);
+            t2.AddChild(t3);
+            t2.AddChild(t4);
+            // Create a loop by adding root as t4's child. 
+            t4.AddChild(t1);
+        }
+
+        [TestMethod]
         public void TestFlatList()
         {
             var t1 = new AsyncTask("t1");

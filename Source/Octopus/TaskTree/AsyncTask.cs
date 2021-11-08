@@ -53,9 +53,9 @@ namespace Octopus.TaskTree
         {
             childTask = childTask ?? throw new ArgumentNullException(nameof(childTask));
 
-            EnsureNoCycles(childTask);
 
             childTask.Parent = this;
+            EnsureNoCycles(childTask);
             childTask.Reporting += OnChildReporting;
             childTasks.Add(childTask);
         }
@@ -232,16 +232,22 @@ namespace Octopus.TaskTree
 
         private void EnsureNoCycles(IAsyncTask newTask)
         {
-            var root = this as IAsyncTask;
+            var thisNode = this as IAsyncTask;
+            HashSet<IAsyncTask> hSet = new HashSet<IAsyncTask>();
             while (true)
             {
-                if (root.Parent is null)
+                if (thisNode.Parent is null)
                 {
                     break;
                 }
-                root = root.Parent;
+                if (hSet.Contains(thisNode))
+                {
+                    throw new AsyncTasksCycleDetectedException(thisNode, newTask);
+                }
+                hSet.Add(thisNode);
+                thisNode = thisNode.Parent;
             }
-            var existingTask = FlatList(root).FirstOrDefault(t => t == newTask);
+            var existingTask = FlatList(thisNode).FirstOrDefault(t => t == newTask);
             if (existingTask != null)
             {
                 throw new AsyncTasksCycleDetectedException(newTask, existingTask.Parent);
@@ -251,7 +257,7 @@ namespace Octopus.TaskTree
         private IEnumerable<IAsyncTask> FlatList(IAsyncTask root)
         {
             yield return root;
-            foreach(var ct in root.ChildTasks)
+            foreach (var ct in root.ChildTasks)
             {
                 foreach (var item in FlatList(ct))
                     yield return item;

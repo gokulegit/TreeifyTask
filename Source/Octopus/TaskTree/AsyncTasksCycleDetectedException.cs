@@ -17,7 +17,7 @@ namespace Octopus.TaskTree
         }
 
         public AsyncTasksCycleDetectedException(IAsyncTask newTask, IAsyncTask parentTask)
-            : base($"Task '{newTask?.Id}' was already added as a child to task '{parentTask?.Id}'.")
+            : base($"Task '{newTask?.Id}' was already added as a child to task tree of '{parentTask?.Id}'.")
         {
             this.NewTask = newTask;
             this.ParentTask = parentTask;

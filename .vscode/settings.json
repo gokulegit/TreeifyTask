@@ -1,0 +1,4 @@
+{
+    "dotnet-test-explorer.testProjectPath": "Test/Octopus.Test",
+    "dotnet-test-explorer.autoWatch": true
+}
