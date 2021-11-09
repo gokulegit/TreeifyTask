@@ -103,7 +103,7 @@ var rootTask =
         new TaskNode("Task6", Task6_Action));
 
 
-private async Task Task1_Action(IProgressReporter reported, CancellationToken token)
+private async Task Task1_Action(IProgressReporter reporter, CancellationToken token)
 {
     reporter.ReportProgress(TaskStatus.InProgress, 10, "Started...");
     await Task.Delay(1000);
