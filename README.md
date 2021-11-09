@@ -121,7 +121,6 @@ var task2_1_2 = rootTask.Find("Task2/Task2.1/Task2.1.2");
 // Preferences
 task2_1_2.ExecutionMode = ExecutionMode.Series;
 task2_1_2.ThrowOnError = false;
-task2_1_2.ExecutionTimeout = 300; // milliseconds.
 
 rootTask.ExecuteConcurrently(cancellationToken: token, throwOnError: true);
 ```
