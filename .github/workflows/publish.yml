@@ -1,45 +1,28 @@
-name: publish to nuget
+name: Release to Nuget
+
 on:
-  push:
-    branches:
-      - main # Default release branch, may also be named 'master' or 'develop'
+  release:
+    types: [published]
+
 jobs:
-  publish:
-    name: build, pack & publish
+  build:
+
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-
-      # - name: Setup dotnet
-      #   uses: actions/setup-dotnet@v1
-      #   with:
-      #     dotnet-version: 3.1.200
-
-      # Publish
-      - name: publish on version change
-        id: publish_nuget
-        uses: brandedoutcast/publish-nuget@v2
-        with:
-          # Filepath of the project to be packaged, relative to root of repository
-          PROJECT_FILE_PATH: Source/Octopus/Octopus.csproj
-                    
-          # NuGet package id, used for version detection & defaults to project name
-          PACKAGE_NAME: Octopus.TaskTree
-                             
-          # Useful with external providers like Nerdbank.GitVersioning, ignores VERSION_FILE_PATH & VERSION_REGEX
-          VERSION_STATIC: ${{ github.event.release.tag_name }}
-
-          # Flag to toggle git tagging, enabled by default
-          # TAG_COMMIT: true
-
-          # Format of the git tag, [*] gets replaced with actual version
-          # TAG_FORMAT: v*
-
-          # API key to authenticate with NuGet server
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-
-          # NuGet server uri hosting the packages, defaults to https://api.nuget.org
-          # NUGET_SOURCE: https://api.nuget.org
-
-          # Flag to toggle pushing symbols along with nuget package to the server, disabled by default
-          # INCLUDE_SYMBOLS: false
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        #dotnet-version: 3.1.101
+        dotnet-version: 6.0
+    - name: Create NuGet Package
+      run: dotnet pack -c Release /p:Version=${{ github.event.release.tag_name }} /p:PackageReleaseNotes="See https://github.com/gokulegit/Octopus/releases/tag/${{ github.event.release.tag_name }}"
+      working-directory: ./Source/Octopus/Octopus.csproj      
+    - name: Archive NuGet Package
+      uses: actions/upload-artifact@v1
+      with:
+        name: Octopus.TaskTree
+        path: ./Source/Octopus/bin/Release/Octopus.TaskTree.${{ github.event.release.tag_name }}.nupkg
+    - name: Publish Nuget Package
+      run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols true
