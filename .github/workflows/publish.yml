@@ -22,22 +22,10 @@ jobs:
         with:
           # Filepath of the project to be packaged, relative to root of repository
           PROJECT_FILE_PATH: Source/Octopus/Octopus.csproj
-          
-          # Configuration to build and package
-          BUILD_CONFIGURATION: Release
-          
-          # Platform target to compile (default is empty/AnyCPU)
-          # BUILD_PLATFORM: x64          
-          
+                    
           # NuGet package id, used for version detection & defaults to project name
           PACKAGE_NAME: Octopus.TaskTree
-          
-          # Filepath with version info, relative to root of repository & defaults to PROJECT_FILE_PATH
-          # VERSION_FILE_PATH: Directory.Build.props
-
-          # Regex pattern to extract version info in a capturing group
-          # VERSION_REGEX: ^\s*<Version>(.*)<\/Version>\s*$
-          
+                             
           # Useful with external providers like Nerdbank.GitVersioning, ignores VERSION_FILE_PATH & VERSION_REGEX
           VERSION_STATIC: ${{ github.event.release.tag_name }}
 
