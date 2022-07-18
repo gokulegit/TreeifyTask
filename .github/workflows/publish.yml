@@ -1,9 +1,10 @@
 name: Release to Nuget
 
 on:
-  release:
-    types: [published]
-
+  push:
+    branches:
+      - main # Default release branch, may also be named 'master' or 'develop'
+      
 jobs:
   build:
 
