@@ -4,6 +4,7 @@
     <TargetFrameworks>netcoreapp3.1;netcoreapp2.1;net48;net5</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
     <PackageId>Octopus.TaskTree</PackageId>
+    <PackageVersion>1.1.0</PackageVersion>
     <Authors>Gokul E</Authors>
     <Description>Dotnet component that provides heirarchical management of async tasks</Description>
     <PackageTags>csharptaskmanager asynctasks concurrent concurrency seriesexecution serialexecution overallprogress treeprogress consolidateprogress parenttask childtask parentchildtask</PackageTags>
