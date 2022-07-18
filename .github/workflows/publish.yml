@@ -19,7 +19,7 @@ jobs:
         #dotnet-version: 6.0
     - name: Create NuGet Package
       run: dotnet pack -c Release /p:Version=${{ github.event.release.tag_name }} /p:PackageReleaseNotes="See https://github.com/gokulegit/Octopus/releases/tag/${{ github.event.release.tag_name }}"
-      working-directory: ./Source/Octopus/Octopus.csproj      
+      working-directory: ./Source/Octopus      
     - name: Archive NuGet Package
       uses: actions/upload-artifact@v1
       with:
