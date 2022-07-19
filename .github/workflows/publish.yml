@@ -45,5 +45,5 @@ jobs:
         path: ./Source/Octopus/bin/Release/Octopus.TaskTree.${{ github.event.release.tag_name }}.nupkg
         
     - name: Publish Nuget Package
-      run: dotnet nuget push Octopus.TaskTree.${{ github.event.release.tag_name }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols true
+      run: dotnet nuget push Octopus.TaskTree.${{ github.event.release.tag_name }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols true --skip-duplicate
       working-directory: ./Source/Octopus/bin/Release      
