@@ -21,20 +21,17 @@ jobs:
       with:
         #dotnet-version: 3.1.101
         dotnet-version: 6.0.x
-    - name: Publish to .netcoreapp3.1
-      run: dotnet publish -c Release -f netcoreapp3.1
-      working-directory: ./Source/Octopus
-      
-    - name: Publish to .netcoreapp2.1
-      run: dotnet publish -c Release -f netcoreapp2.1
-      working-directory: ./Source/Octopus
-      
-    - name: Publish to net5
-      run: dotnet publish -c Release -f net5
-      working-directory: ./Source/Octopus      
-      
-    - name: Publish to net48
-      run: dotnet publish -c Release -f net48
+    - name: Publish to all targets
+      run: |
+        dotnet publish -c Release -f netcoreapp2.1
+        dotnet publish -c Release -f netcoreapp2.2
+        dotnet publish -c Release -f netcoreapp3.0
+        dotnet publish -c Release -f netcoreapp3.1
+        dotnet publish -c Release -f net5
+        dotnet publish -c Release -f net6 
+        dotnet publish -c Release -f net45     
+        dotnet publish -c Release -f net47
+        dotnet publish -c Release -f net48
       working-directory: ./Source/Octopus
       
     - name: Create NuGet Package
@@ -48,4 +45,5 @@ jobs:
         path: ./Source/Octopus/bin/Release/Octopus.TaskTree.${{ github.event.release.tag_name }}.nupkg
         
     - name: Publish Nuget Package
-      run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols true
+      run: dotnet nuget push Octopus.TaskTree.${{ github.event.release.tag_name }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols true
+      working-directory: ./Source/Octopus/bin/Release      
