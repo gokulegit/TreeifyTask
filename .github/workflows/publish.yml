@@ -28,9 +28,7 @@ jobs:
         dotnet publish -c Release -f netcoreapp3.0
         dotnet publish -c Release -f netcoreapp3.1
         dotnet publish -c Release -f net5
-        dotnet publish -c Release -f net6 
-        dotnet publish -c Release -f net45     
-        dotnet publish -c Release -f net47
+        dotnet publish -c Release -f net6
         dotnet publish -c Release -f net48
       working-directory: ./Source/Octopus
       
