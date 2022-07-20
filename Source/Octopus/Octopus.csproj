@@ -4,7 +4,7 @@
     <TargetFrameworks>netcoreapp3.0;netcoreapp3.1;netcoreapp2.1;netcoreapp2.2;net5;net6;net48</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
     <PackageId>Octopus.TaskTree</PackageId>
-    <PackageVersion>1.0.3</PackageVersion>
+    <PackageVersion>1.1.1</PackageVersion>
     <Authors>Gokul E</Authors>
     <Description>Dotnet component that provides heirarchical management of async tasks</Description>
     <PackageTags>csharptaskmanager asynctasks concurrent concurrency seriesexecution serialexecution overallprogress treeprogress consolidateprogress parenttask childtask parentchildtask</PackageTags>
@@ -13,8 +13,8 @@
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.0.3</Version>
-    <AssemblyVersion>1.0.3.0</AssemblyVersion>
+    <Version>1.1.1</Version>
+    <AssemblyVersion>1.1.1.0</AssemblyVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Octopus.TaskTree.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
