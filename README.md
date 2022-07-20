@@ -1,5 +1,7 @@
 # Octopus.TaskTree
 
+[![Build & Release](https://github.com/gokulegit/Octopus/actions/workflows/publish.yml/badge.svg)](https://github.com/gokulegit/Octopus/actions/workflows/publish.yml)
+
 Dotnet component that helps you to manage `async` tasks in a hierarchical fashion.
 
 There are situations that we might have to manage tasks in a tree like structure. Means, the parent task depends on child tasks to be completed in a serial or concurrent fashion. The parent task needs to show the average progress value of overall operation.
