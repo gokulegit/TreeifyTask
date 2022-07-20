@@ -12,10 +12,8 @@ You have several options that you can execute them concurrently or in series. Th
 
 Please see below code snippet for the better understanding.
 
+**Create structured Tasks**
 ``` C#
-// ---------------
-// Create a structure of Tasks
-// ---------------
 ITaskNode rootTask = new TaskNode("root");
 
 ITaskNode childTask_1 = new TaskNode("Task-1");
@@ -23,10 +21,11 @@ ITaskNode childTask_2 = new TaskNode("Task-2");
 
 rootTask.AddChild(childTask_1);
 rootTask.AddChild(childTask_2);
+```
 
-// --------------
-// Set actions
-// --------------
+**Set actions**
+
+```C#
 childTask_1.SetAction(async (reporter, cancellationToken) => {
     // Simple delay function.
     reporter.ReportProgress(TaskStatus.InProgress, 10, "Started...");
@@ -41,17 +40,27 @@ childTask_2.SetAction(async (reporter, cancellationToken) => {
     reporter.ReportProgress(TaskStatus.InProgress, 100, "Finished...");
 });
 
+```
+
+**Subscribe to reporting event to get overall progress**
+
+```C#
 // Before starting the execution, you need to subscribe for progress report.
 rootTask.Reporting += (object sender, ProgressReportingEventArgs eventArgs) => {
     eventArgs.ProgressValue; // -> this will represent the overall progress
 };
 
+```
+
+**Start execution**
+```C#
 // Create and pass the cancellation token
 var tokenSource = new CancellationTokenSource();
 var token = tokenSource.Token;
 
 // Start the execution concurrently
 rootTask.ExecuteConcurrently(cancellationToken: token, throwOnError: true);
+
 
 // OR
 
