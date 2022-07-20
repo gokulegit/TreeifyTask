@@ -1,6 +1,6 @@
 # Octopus.TaskTree
 
-[![Build & Release](https://github.com/gokulegit/Octopus/actions/workflows/publish.yml/badge.svg)](https://github.com/gokulegit/Octopus/actions/workflows/publish.yml)
+[![Release to Nuget](https://github.com/gokulegit/Octopus/actions/workflows/publish.yml/badge.svg?branch=1.1.1)](https://github.com/gokulegit/Octopus/actions/workflows/publish.yml)
 
 Dotnet component that helps you to manage `async` tasks in a hierarchical fashion.
 
