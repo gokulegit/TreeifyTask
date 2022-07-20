@@ -93,7 +93,9 @@ Here's the list of items in backlog for the upcoming releases
 - [x] Core Component
 - [x] Wpf Sample
 - [x] Blazor Server Sample
-- [ ] Syntax Enhancement on subtasks creation
+- [ ] Syntax Enhancement on subtasks creation and settings
+- [ ] Json/Xml config loader
+- [ ] Extend to Java, Python
 
 Sample tree below:
 
