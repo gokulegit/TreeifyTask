@@ -69,7 +69,7 @@ rootTask.ExecuteInSeries(cancellationToken: token, throwOnError: true);
 
 ```
 
-## Demo execution
+## Demo execution in WPF application
 
 ### Series execution with cancellation
 
