@@ -1,4 +1,4 @@
-# Octopus.TaskTree
+# TreeifyTask (formerly Octopus.TaskTree)
 
 [![Release to Nuget](https://github.com/gokulegit/Octopus/actions/workflows/publish.yml/badge.svg?branch=1.1.1)](https://github.com/gokulegit/Octopus/actions/workflows/publish.yml) [![NuGet Downloads](https://img.shields.io/nuget/dt/Octopus.TaskTree.svg)](https://www.nuget.org/packages/Octopus.TaskTree)
 
